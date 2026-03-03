@@ -13,4 +13,4 @@ binding = "EMAIL_CONTEXT"
 id = "87e4abc16191491c992d3149d5677c6b"
 
 # Email routing (configured in Cloudflare dashboard, not wrangler):
-# inbox@distributedelectrons.com → this worker
+# inbox@voltagelabs.net → this worker
