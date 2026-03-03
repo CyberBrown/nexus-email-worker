@@ -1,7 +1,6 @@
-import { callViaGateway, type GatewayProvider } from './gateway-client';
 import type { ClassificationResult, Env } from './types';
 
-const SYSTEM_PROMPT = `You are an email classifier for a personal task management system called Nexus.
+const CLASSIFICATION_SYSTEM_PROMPT = `You are an email classifier for a personal task management system called Nexus.
 Given an email, classify it into one of these types:
 - "task" — something that requires action (a to-do, request, follow-up)
 - "idea" — a concept, suggestion, or thing to explore later
@@ -24,52 +23,57 @@ If the email subject starts with "TASK:", "IDEA:", or "NOTE:", treat that as an 
 
 For forwarded emails (subject starts with "Fwd:" or "Fw:"), focus on the original email content, not the forwarding metadata.`;
 
-export async function classifyEmail(
+/**
+ * Dispatch an email classification task to DE's /execute endpoint.
+ * Returns the task_id for correlating the callback.
+ */
+export async function dispatchToDE(
+  subject: string,
   emailContent: string,
   env: Env,
-): Promise<ClassificationResult | null> {
-  const provider = (env.LLM_PROVIDER || 'zai') as GatewayProvider;
+): Promise<string> {
+  const taskId = crypto.randomUUID();
 
-  const response = await callViaGateway(
-    {
-      gatewayBaseUrl: env.AI_GATEWAY_URL,
-      cfAigToken: env.CF_AIG_TOKEN,
+  const response = await fetch(env.DE_EXECUTE_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Passphrase': env.NEXUS_PASSPHRASE,
     },
-    {
-      provider,
-      path: '/v1/chat/completions',
-      body: {
-        model: env.LLM_MODEL,
-        messages: [
-          { role: 'system', content: SYSTEM_PROMPT },
-          { role: 'user', content: emailContent },
-        ],
-        temperature: 0.1,
-        max_tokens: 512,
+    body: JSON.stringify({
+      task_id: taskId,
+      title: `Classify email: ${subject.slice(0, 60)}`,
+      description: emailContent,
+      context: {
+        system_prompt: CLASSIFICATION_SYSTEM_PROMPT,
       },
-    },
-  );
+      hints: {
+        workflow: 'text-generation',
+      },
+      callback_url: `${env.WORKER_URL}/callback`,
+    }),
+  });
 
   if (!response.ok) {
     const text = await response.text();
-    throw new Error(`LLM call failed (${response.status}): ${text}`);
+    throw new Error(`DE dispatch failed (${response.status}): ${text}`);
   }
 
-  const data = (await response.json()) as {
-    choices: Array<{ message: { content: string } }>;
-  };
+  return taskId;
+}
 
-  const raw = data.choices?.[0]?.message?.content;
-  if (!raw) {
-    throw new Error('LLM returned empty response');
-  }
-
+/**
+ * Parse the LLM classification output from DE's callback.
+ */
+export function parseClassificationFromOutput(output: string): ClassificationResult {
   // Strip markdown fences if the LLM wraps its response
-  const cleaned = raw.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
+  const cleaned = output
+    .replace(/^```(?:json)?\s*/i, '')
+    .replace(/\s*```$/i, '')
+    .trim();
 
   const parsed = JSON.parse(cleaned) as ClassificationResult;
 
-  // Basic validation
   if (!['task', 'idea', 'note', 'noise'].includes(parsed.type)) {
     throw new Error(`Invalid classification type: ${parsed.type}`);
   }

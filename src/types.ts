@@ -1,11 +1,10 @@
 export interface Env {
   NEXUS_MCP_URL: string;
   NEXUS_PASSPHRASE: string;
-  AI_GATEWAY_URL: string;
-  CF_AIG_TOKEN: string;
-  LLM_PROVIDER: string;
-  LLM_MODEL: string;
+  DE_EXECUTE_URL: string;
+  WORKER_URL: string;
   AUTO_PROMOTE_THRESHOLD: string;
+  EMAIL_CONTEXT: KVNamespace;
 }
 
 export interface ParsedEmail {
@@ -35,4 +34,18 @@ export interface NexusMcpResponse {
     code: number;
     message: string;
   };
+}
+
+export interface EmailClassificationContext {
+  itemId: string;
+  emailBody: string;
+  emailContent: string;
+  capturedAt: string;
+}
+
+export interface DeCallbackBody {
+  task_id: string;
+  status: 'completed' | 'failed';
+  output?: string;
+  error?: string;
 }
