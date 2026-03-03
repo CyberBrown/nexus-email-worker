@@ -227,5 +227,5 @@ Email arrives
 - Commit all changes with descriptive message
 - Deploy: `bunx wrangler deploy`
 - Set secret if not already: `bunx wrangler secret put CF_AIG_TOKEN`
-- Test by sending an email to inbox@voltagelabs.net
+- Test by sending an email to intake@voltagelabs.net
 - Monitor with `bunx wrangler tail`

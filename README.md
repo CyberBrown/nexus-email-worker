@@ -1,6 +1,6 @@
 # nexus-email-worker
 
-Cloudflare Email Worker that receives emails at `inbox@voltagelabs.net` and processes them into Nexus items (tasks, ideas, notes, or raw inbox captures) via LLM classification.
+Cloudflare Email Worker that receives emails at `intake@voltagelabs.net` and processes them into Nexus items (tasks, ideas, notes, or raw inbox captures) via LLM classification.
 
 ## Architecture
 
@@ -10,7 +10,7 @@ Email → Cloudflare Email Routing → Email Worker → LLM Classification (via 
 
 ## How it works
 
-1. Forward any email to `inbox@voltagelabs.net`
+1. Forward any email to `intake@voltagelabs.net`
 2. The Email Worker parses sender, subject, body
 3. If subject contains prefixes like `TASK:`, `IDEA:`, `NOTE:` — routes directly
 4. Otherwise, sends content to LLM for classification

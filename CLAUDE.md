@@ -4,7 +4,7 @@
 github.com/CyberBrown/nexus-email-worker (already scaffolded, clone it first)
 
 ## Goal
-Build a Cloudflare Email Worker that receives emails at `inbox@voltagelabs.net`, parses them, and creates Nexus inbox items. This is Phase 1 — no LLM classification yet, just raw capture to Nexus.
+Build a Cloudflare Email Worker that receives emails at `intake@voltagelabs.net`, parses them, and creates Nexus inbox items. This is Phase 1 — no LLM classification yet, just raw capture to Nexus.
 
 ## What this worker does
 1. Receives inbound email via Cloudflare Email Routing
@@ -95,7 +95,7 @@ Add this to wrangler.toml for email routing:
 ```toml
 [[email_routing.rules]]
 enabled = true
-match = "inbox@voltagelabs.net"
+match = "intake@voltagelabs.net"
 action = "worker"
 ```
 
