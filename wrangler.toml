@@ -5,5 +5,8 @@ compatibility_date = "2025-02-14"
 [vars]
 NEXUS_MCP_URL = "https://nexus-mcp.solamp.workers.dev/mcp"
 # AI Gateway URL - route all LLM calls through this
-AI_GATEWAY_URL = "https://gateway.ai.cloudflare.com/v1/YOUR_ACCOUNT_ID/de-gateway"
+AI_GATEWAY_URL = "https://gateway.ai.cloudflare.com/v1/52b1c60ff2a24fb21c1ef9a429e63261/de-gateway"
 LLM_MODEL = "glm-4.7-flashx"
+
+# Email routing (configured in Cloudflare dashboard, not wrangler):
+# inbox@distributedelectrons.com → this worker
